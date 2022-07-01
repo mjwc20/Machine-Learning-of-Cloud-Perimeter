@@ -75,7 +75,7 @@ for t_index in time_range:
         ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
-        ax.set_zlim(z[0],z[-1])
+        ax.set_zlim(z[0],2000)
         
         #Second plot, viewed from above
         ax = fig.add_subplot(2,2,3,projection='3d')
@@ -83,7 +83,7 @@ for t_index in time_range:
         ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
-        ax.set_zlim(z[0],z[-1])
+        ax.set_zlim(z[0],2000)
         ax.set_title('View from Above', fontweight ='bold')
         #set the view angle
         ax.view_init(90, 0)
@@ -97,7 +97,7 @@ for t_index in time_range:
         ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
-        ax.set_zlim(z[0],z[-1])
+        ax.set_zlim(z[0],2000)
         ax.set_title('View of Y-Z Plane', fontweight ='bold')
         #set the view angle
         ax.view_init(0, 0)
@@ -111,7 +111,7 @@ for t_index in time_range:
         ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
-        ax.set_zlim(z[0],z[-1])
+        ax.set_zlim(z[0],2000)
         ax.set_title('View of X-Z Plane', fontweight ='bold')
         #set the view angle
         ax.view_init(0, 90)
