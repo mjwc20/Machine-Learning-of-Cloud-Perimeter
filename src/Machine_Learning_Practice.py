@@ -437,7 +437,6 @@ interpolated_data2=Dataset(file_path + file_name2,mode='r')
 new_time_offset=time_offset[-1] + np.array(interpolated_data2.variables['time_offset'])
 time_offset=np.append(time_offset,new_time_offset)
 time=np.append(time, np.array(interpolated_data2.variables['time']),axis=0)
-height=np.append(height,np.array(interpolated_data2.variables['height']),axis=0)
 u_wind=np.append(u_wind, np.array(interpolated_data2.variables['u_wind']),axis=0)
 qc_u_wind=np.append(qc_u_wind, np.array(interpolated_data2.variables['qc_u_wind']),axis=0)
 v_wind=np.append(v_wind,np.array(interpolated_data2.variables['v_wind']),axis=0)
@@ -472,7 +471,6 @@ interpolated_data3=Dataset(file_path + file_name3,mode='r')
 new_time_offset=time_offset[-1] + np.array(interpolated_data3.variables['time_offset'])
 time_offset=np.append(time_offset,new_time_offset)
 time=np.append(time, np.array(interpolated_data3.variables['time']),axis=0)
-height=np.append(height,np.array(interpolated_data3.variables['height']),axis=0)
 u_wind=np.append(u_wind, np.array(interpolated_data3.variables['u_wind']),axis=0)
 qc_u_wind=np.append(qc_u_wind, np.array(interpolated_data3.variables['qc_u_wind']),axis=0)
 v_wind=np.append(v_wind,np.array(interpolated_data3.variables['v_wind']),axis=0)
@@ -501,11 +499,6 @@ qc_wspd=np.append(qc_wspd,np.array(interpolated_data3.variables['qc_wspd']),axis
 
 variable_list=[u_wind,v_wind,precip,temp,bar_pres,rh_scaled,potential_temp,sh,wdir,vap_pres,dp,wspd]
 qc_variable_list=[qc_u_wind,qc_v_wind,qc_precip,qc_temp,qc_bar_pres,qc_rh_scaled,qc_potential_temp,qc_sh,qc_wdir,qc_vap_pres,qc_dp,qc_wspd]
-
-
-
-print(base_time)
-print(np.shape(temp))
 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
@@ -552,28 +545,74 @@ if save_fig:
                 duration = 250,
                 loop = 0)
 
-
-
-machine_learn=True
+machine_learn=False
 if machine_learn:
-    x_t=[]
-    for t in range(0,len(time),20):
-        height_indices_at_time_t=[]
-        print(len(height))
-        for i in range(len(height)):
-            if qc_u_wind[t,i]<=0 & qc_v_wind[t,i]<=0 &\
-            qc_temp[t,i]<=0 & qc_bar_pres[t,i]<=0 & qc_rh_scaled[t,i]<=0 & qc_potential_temp[t,i]<=0 &\
-                qc_sh[t,i]<=0 & qc_wdir[t,i]<=0 & qc_vap_pres[t,i]<=0 & qc_dp[t,i]<=0 & qc_wspd[t,i]<=0:
-                np.append(height_indices_at_time_t,i)
-        height=height[height_indices_at_time_t]
-        x=np.zeros(len(time),len(height))
-        for atmos_variable in variable_list:
-            atmos_variable=atmos_variable[t,height_indices_at_time_t]
+    height_indices_at_all_t=[]
+    for i in range(len(height)):
+        if all(qc_u_wind[t,i]<=0 & qc_v_wind[t,i]<=0 &\
+        qc_temp[t,i]<=0 & qc_bar_pres[t,i]<=0 & qc_rh_scaled[t,i]<=0 & qc_potential_temp[t,i]<=0 &\
+            qc_sh[t,i]<=0 & qc_wdir[t,i]<=0 & qc_vap_pres[t,i]<=0 & qc_dp[t,i]<=0 & qc_wspd[t,i]<=0 for t in range(0,len(time),20)):
+            np.append(height_indices_at_all_t,i)
+    print(height_indices_at_all_t)
+    height_indices_at_all_t=np.array(height_indices_at_all_t)
+    height=height[height_indices_at_all_t]
+    x_t=np.zeros((len(range(0,len(time),20)),len(height_indices_at_all_t),11))
+    y=[]
+    for t in range(0,len(time),20):     
+        for idx,atmos_variable in enumerate(variable_list):
             if atmos_variable!=precip:
-                x=np.stack(x,atmos_variable)
+                filtered_atmos_variable=atmos_variable[t,height_indices_at_all_t]
+                x_t[t,:,idx]=filtered_atmos_variable
             if atmos_variable==precip:
-                y=atmos_variable
-        np.append(x_t,x)
-print(np.shape(x))
-print(np.shape(y))
+                filtered_atmos_variable=atmos_variable[t]
+                np.append(y,atmos_variable)
+    print(np.shape(x))
+    print(np.shape(y))
     
+
+machine_learn_revised=True
+if machine_learn_revised:
+    #initialise the explanatory variable array
+    x=np.zeros((len(time),len(height),11))
+    #define the explanatory and response variables
+    y=precip
+    x[:,:,0]=wspd
+    x[:,:,1]=u_wind
+    x[:,:,2]=v_wind
+    x[:,:,3]=temp
+    x[:,:,4]=bar_pres
+    x[:,:,5]=rh_scaled
+    x[:,:,6]=potential_temp
+    x[:,:,7]=sh
+    x[:,:,8]=wdir
+    x[:,:,9]=vap_pres
+    x[:,:,10]=dp
+
+    #split the data into train and test
+    dataset_size=np.shape(y)[0]
+    train_size=int(np.floor(0.8*dataset_size))
+    x_train=x[:train_size,:,:]
+    x_test=x[train_size:,:,:]
+    y_train=y[:train_size]
+    y_test=y[train_size:]
+
+
+    #cast as tensorflow constants
+    x_train=tf.constant(x_train)
+    x_test=tf.constant(x_test)
+    y_train=tf.constant(y_train)
+    y_test=tf.constant(y_test)
+
+    #set up the RNN
+    #set the random seed to ensure reproducibility
+    tf.random.set_seed(42)
+    #setup the keras RNN model using 2 layers
+    #add layers to the model
+    inputs = tf.keras.Input(shape=(332,11))
+    x = tf.keras.layers.LSTM(128)(inputs)
+    x = tf.keras.layers.LSTM(40)(x)
+    x = tf.keras.layers.Flatten()(x)
+    outputs = tf.keras.layers.Dense(10)(x)
+    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    model.summary()
+
