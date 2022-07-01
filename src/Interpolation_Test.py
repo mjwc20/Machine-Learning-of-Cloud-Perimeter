@@ -413,6 +413,7 @@ height = np.array(interpolated_data.variables['height'])
 warnings.filterwarnings("default", category=DeprecationWarning) 
 
 image_number=0
+print(len(time))
 for t in range(0,len(time),20):
     image_number=image_number+1
 
