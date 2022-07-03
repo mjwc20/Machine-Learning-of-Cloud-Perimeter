@@ -62,11 +62,6 @@ for t_index in time_range:
     #1 => cloud, 0 => no cloud and -1 => no cloud reconstruction
     zt,yt,xt = np.where(cloud[t_index,:,:,:]>0)
     #compute the amount of cloud in each vertical direction (which contains some cloud)
-    grid=np.zeros((len(x),len(y)))
-    for k in zt:
-        yk,xk=np.where(cloud[t_index,k,:,:]>0)
-        grid[xk,yk]=grid[xk,yk]+1
-    grid=grid[xt,yt]
 
     if xt.size>0:
         #only plot if there is some cloud
@@ -77,7 +72,7 @@ for t_index in time_range:
         ax.set_zlabel('z', fontweight ='bold')
         #plot a 3d scatter for the positive elements
         #using values for x,y,z
-        ax.scatter3D(x[xt], y[yt], z[zt],c=grid, cmap="Greys")
+        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
@@ -85,7 +80,7 @@ for t_index in time_range:
         #Second plot, viewed from above
         ax = fig.add_subplot(2,2,3,projection='3d')
         plot_indices=False
-        ax.scatter3D(x[xt], y[yt], z[zt], c=grid, cmap="Greys")
+        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
@@ -99,7 +94,7 @@ for t_index in time_range:
         #Third plot, viewed from side
         ax = fig.add_subplot(2,2,2,projection='3d')
         plot_indices=False
-        ax.scatter3D(x[xt], y[yt], z[zt], c=grid, cmap="Greys")
+        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
@@ -113,7 +108,7 @@ for t_index in time_range:
         #Fourth plot, viewed from side
         ax = fig.add_subplot(2,2,4,projection='3d')
         plot_indices=False
-        ax.scatter3D(x[xt], y[yt], z[zt], c=grid, cmap="Greys")
+        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
