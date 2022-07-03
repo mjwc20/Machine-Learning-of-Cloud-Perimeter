@@ -72,7 +72,7 @@ for t_index in time_range:
         ax.set_zlabel('z', fontweight ='bold')
         #plot a 3d scatter for the positive elements
         #using values for x,y,z
-        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
+        ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
@@ -80,7 +80,7 @@ for t_index in time_range:
         #Second plot, viewed from above
         ax = fig.add_subplot(2,2,3,projection='3d')
         plot_indices=False
-        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
+        ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
@@ -94,7 +94,7 @@ for t_index in time_range:
         #Third plot, viewed from side
         ax = fig.add_subplot(2,2,2,projection='3d')
         plot_indices=False
-        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
+        ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
@@ -108,7 +108,7 @@ for t_index in time_range:
         #Fourth plot, viewed from side
         ax = fig.add_subplot(2,2,4,projection='3d')
         plot_indices=False
-        ax.scatter3D(x[xt], y[yt], z[zt], alpha=0.1)
+        ax.scatter3D(x[xt], y[yt], z[zt], c=z[zt])
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
         ax.set_zlim(z[0],2000)
