@@ -53,15 +53,15 @@ time_range = np.arange(0,time.size,1)
 image_number=0
 for t_index in time_range:
     fig = plt.figure(figsize = (12, 10))
-    #ax = plt.axes(projection ="3d")
     ax = fig.add_subplot(2,2,1,projection='3d')
     #show the date and time as the plot title
     plot_title = 'Cloud Image: ' + str(image_number+1)
     plot_title = plot_title + ' ' + datetime.fromtimestamp(time[t_index]).strftime("%B %d, %Y %I:%M:%S")
     ax.set_title(plot_title, fontweight ='bold')
     #obtain the cloud matrix indices for positive elements (which correspond to positions with cloud)
-    #Note that a 1 => cloud, 0 => no cloud and -1 => no cloud reconstruction
+    #1 => cloud, 0 => no cloud and -1 => no cloud reconstruction
     zt,yt,xt = np.where(cloud[t_index,:,:,:]>0)
+    #compute the amount of cloud in each vertical direction (which contains some cloud)
     grid=np.zeros((len(x),len(y)))
     for k in zt:
         yk,xk=np.where(cloud[t_index,k,:,:]>0)
@@ -69,7 +69,7 @@ for t_index in time_range:
     grid=grid[xt,yt]
 
     if xt.size>0:
-        #only plot if there is some cloud 
+        #only plot if there is some cloud
         image_number=image_number+1
         #set axes labels
         ax.set_xlabel('x', fontweight ='bold')
@@ -77,7 +77,6 @@ for t_index in time_range:
         ax.set_zlabel('z', fontweight ='bold')
         #plot a 3d scatter for the positive elements
         #using values for x,y,z
-        #use different colours to distinguish relative heights (in the z direction)
         ax.scatter3D(x[xt], y[yt], z[zt],c=grid, cmap="Greys")
         ax.set_xlim(x[0],x[-1])
         ax.set_ylim(y[0],y[-1])
