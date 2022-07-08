@@ -148,11 +148,12 @@ if plot_data:
                     loop = 0)
 
 
-cloud_slice=cloud[18,:,:,:]
-cloud_slice[cloud_slice==-1]=0
 
-kernel_method=True
+
+kernel_method=False
 if kernel_method:
+    cloud_slice=cloud[18,:,:,:]
+    cloud_slice[cloud_slice==-1]=0
     k=[[[0,0,0],[0,1,0],[0,0,0]],[[0,1,0],[1,0,1],[0,1,0]],[[0,0,0],[0,1,0],[0,0,0]]]
     cloud_tensor = tf.constant(cloud_slice, tf.float32)
     k_tensor = tf.constant(k, tf.float32)
@@ -161,4 +162,50 @@ if kernel_method:
     cloud_tensor_reduced=cloud_tensor[1:-1,1:-1,1:-1]
     cloud_perimeter_tensor=tf.math.multiply(cloud_tensor_reduced,tf.squeeze(kernel_cloud_subtracted))
     cloud_perimeter=tf.reduce_sum(cloud_perimeter_tensor)
-    print(cloud_perimeter)
+    print(int(cloud_perimeter))
+
+kernel_cells=True
+if kernel_cells:
+    missing_value_counter=0
+    cloud_perimeter_vector=[]
+    cloud_fraction_vector=[]
+    height_vector=[]
+    for t in range(cloud.shape[0]):
+        cloud_cube=cloud[:,:,1:,1:]
+        cloud_slice=cloud_cube[t,:,:,:]
+
+        for kk in range(20):
+            for jj in range(4):
+                for ii in range(4):
+                    cloud_cell=cloud_slice[6*kk:6*(kk+1),30*(jj):30*(jj+1),30*(ii):30*(ii+1)]
+                    if np.any(cloud_cell < 0):
+                        missing_value_counter+=1
+                        continue
+                    else:
+                        #compute the cloud fraction
+                        cloud_fraction_value=(np.sum(cloud_cell))/(np.shape(cloud_cell[0])*np.shape(cloud_cell)[1]*np.shape(cloud_cell)[2])
+                        cloud_fraction_vector.append(cloud_fraction_value)
+                        #compute the cloud perimeter
+                        k=[[[0,0,0],[0,1,0],[0,0,0]],[[0,1,0],[1,0,1],[0,1,0]],[[0,0,0],[0,1,0],[0,0,0]]]
+                        cloud_tensor = tf.constant(cloud_cell, tf.float32)
+                        k_tensor = tf.constant(k, tf.float32)
+                        kernel_cloud = tf.nn.convolution(tf.reshape(cloud_tensor, [1, 6, 30, 30, 1]), tf.reshape(k_tensor, [3, 3, 3, 1, 1]), padding='VALID')
+                        kernel_cloud_subtracted = tf.subtract(6,kernel_cloud)
+                        cloud_tensor_reduced=cloud_tensor[1:-1,1:-1,1:-1]
+                        cloud_perimeter_tensor=tf.math.multiply(cloud_tensor_reduced,tf.squeeze(kernel_cloud_subtracted))
+                        cloud_perimeter_value=tf.reduce_sum(cloud_perimeter_tensor)
+                        cloud_perimeter_vector.append(cloud_perimeter_value)
+
+                    #append the height
+                    height_vector.append(kk)
+
+
+    cloud_perimeter_vector=np.array(cloud_perimeter_vector)
+    cloud_fraction_vector=np.array(cloud_fraction_vector)
+    height_vector=np.array(height_vector)
+    print('Cloud perimeter:'+str(np.mean(cloud_perimeter_vector)))
+    print('Cloud fraction:'+str(np.mean(cloud_fraction_vector)))
+    print('Height:'+str(np.mean(height_vector)))
+    print(len(cloud_perimeter_vector))
+    print(str(np.shape(cloud)[0]*20*4*4))
+    print(missing_value_counter)
