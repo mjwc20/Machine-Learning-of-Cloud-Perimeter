@@ -189,15 +189,15 @@ if kernel_cells:
                         k=[[[0,0,0],[0,1,0],[0,0,0]],[[0,1,0],[1,0,1],[0,1,0]],[[0,0,0],[0,1,0],[0,0,0]]]
                         cloud_tensor = tf.constant(cloud_cell, tf.float32)
                         k_tensor = tf.constant(k, tf.float32)
-                        kernel_cloud = tf.nn.convolution(tf.reshape(cloud_tensor, [1, 6, 30, 30, 1]), tf.reshape(k_tensor, [3, 3, 3, 1, 1]), padding='VALID')
+                        kernel_cloud = tf.nn.convolution(tf.reshape(cloud_tensor, [1, 6, 30, 30, 1]), tf.reshape(k_tensor, [3, 3, 3, 1, 1]), padding='SAME')
                         kernel_cloud_subtracted = tf.subtract(6,kernel_cloud)
-                        cloud_tensor_reduced=cloud_tensor[1:-1,1:-1,1:-1]
+                        cloud_tensor_reduced=cloud_tensor#[1:-1,1:-1,1:-1]
                         cloud_perimeter_tensor=tf.math.multiply(cloud_tensor_reduced,tf.squeeze(kernel_cloud_subtracted))
                         cloud_perimeter_value=tf.reduce_sum(cloud_perimeter_tensor)
                         cloud_perimeter_vector.append(cloud_perimeter_value)
 
-                    #append the height
-                    height_vector.append(kk)
+                        #append the height
+                        height_vector.append(kk)
 
 
     cloud_perimeter_vector=np.array(cloud_perimeter_vector)
